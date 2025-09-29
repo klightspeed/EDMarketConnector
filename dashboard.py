@@ -20,7 +20,7 @@ from EDMCLogging import get_main_logger
 
 logger = get_main_logger()
 
-if sys.platform == 'win32':
+if sys.platform == 'win32' or config.get_bool('use_inotify'):
     from watchdog.events import FileSystemEventHandler
     from watchdog.observers import Observer
 else:
@@ -72,20 +72,20 @@ class Dashboard(FileSystemEventHandler):
         # File system events are unreliable/non-existent over network drives on Linux.
         # We can't easily tell whether a path points to a network drive, so assume
         # any non-standard logdir might be on a network drive and poll instead.
-        if sys.platform == 'win32' and not self.observer:
+        if (sys.platform == 'win32' or config.get_bool('use_inotify')) and not self.observer:
             logger.debug('Setting up observer...')
             self.observer = Observer()
             self.observer.daemon = True
             self.observer.start()
             logger.debug('Done')
 
-        elif (sys.platform != 'win32') and self.observer:
+        elif (sys.platform != 'win32' and not config.get_bool('use_inotify')) and self.observer:
             logger.debug('Using polling, stopping observer...')
             self.observer.stop()
             self.observer = None  # type: ignore
             logger.debug('Done')
 
-        if not self.observed and sys.platform == 'win32':
+        if not self.observed and (sys.platform == 'win32' or config.get_bool('use_inotify')):
             logger.debug('Starting observer...')
             self.observed = cast(BaseObserver, self.observer).schedule(self, self.currentdir)  # type: ignore
             logger.debug('Done')

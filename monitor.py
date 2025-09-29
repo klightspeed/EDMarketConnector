@@ -36,7 +36,7 @@ STARTUP = 'journal.startup'
 MAX_NAVROUTE_DISCREPANCY = 5  # Timestamp difference in seconds
 MAX_FCMATERIALS_DISCREPANCY = 5  # Timestamp difference in seconds
 
-if sys.platform == 'win32':
+if sys.platform == 'win32' or config.get_bool('use_inotify'):
     from watchdog.events import FileSystemEventHandler, FileSystemEvent
     from watchdog.observers import Observer
     from watchdog.observers.api import BaseObserver
@@ -229,7 +229,7 @@ class EDLogs(FileSystemEventHandler):
         # File system events are unreliable/non-existent over network drives on Linux.
         # We can't easily tell whether a path points to a network drive, so assume
         # any non-standard logdir might be on a network drive and poll instead.
-        polling = bool(config.get_str('journaldir')) and sys.platform != 'win32'
+        polling = bool(config.get_str('journaldir')) and sys.platform != 'win32' and not config.get_bool('use_inotify')
         if not polling and not self.observer:
             logger.debug('Not polling, no observer, starting an observer...')
             self.observer = Observer()
