@@ -480,6 +480,7 @@ ship_name_map = {
     'cobramkiii':                   'Cobra MkIII',
     'cobramkiv':                    'Cobra MkIV',
     'cobramkv':                     'Cobra MkV',
+    'corsair':                      'Corsair',
     'clipper':                      'Panther Clipper',
     'cutter':                       'Imperial Cutter',
     'diamondback':                  'Diamondback Scout',
