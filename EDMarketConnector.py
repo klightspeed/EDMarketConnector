@@ -754,7 +754,7 @@ class AppWindow:
         config.delete('username', suppress=True)
         config.delete('password', suppress=True)
         config.delete('logdir', suppress=True)
-        self.postprefs(False)  # Companion login happens in callback from monitor
+        self.w.after_idle(lambda: self.postprefs(False))  # Companion login happens in callback from monitor
         self.toggle_suit_row(visible=False)
         if args.start_min:
             logger.warning("Trying to start minimized")
@@ -2330,6 +2330,15 @@ sys.path: {sys.path}'''
     # Start the main event loop
     try:
         check_for_fdev_updates()
+
+        current_thread = threading.current_thread()
+        main_thread = threading.main_thread()
+
+        if current_thread is main_thread:
+            logger.info('Entering main loop on main thread')
+        else:
+            logger.info(f'Entering main loop on other thread {current_thread.name}')
+
         root.mainloop()
     except KeyboardInterrupt:
         logger.info("Ctrl+C Detected, Attempting Clean Shutdown")
